@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceImplTest {
+class AccountServiceImplTest {
     @Mock
     AccountDao accountDao;
 
@@ -36,7 +36,7 @@ public class AccountServiceImplTest {
     AccountServiceImpl accountServiceImpl;
 
     @Test
-    public void testTransfer() {
+    void testTransfer() {
         Account sourceAccount = new Account();
         sourceAccount.setAmount(new BigDecimal(100));
 
@@ -53,7 +53,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void accountNotFoundForTransfer() {
+    void accountNotFoundForTransfer() {
         when(accountDao.findById(any())).thenReturn(Optional.empty());
 
         AccountException result = assertThrows(AccountException.class, new Executable() {
@@ -66,7 +66,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void testTransferWithVerify() {
+    void testTransferWithVerify() {
         Account sourceAccount = new Account();
         sourceAccount.setAmount(new BigDecimal(100));
         sourceAccount.setId(1L);
@@ -91,7 +91,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void addingAccount() {
+    void addingAccount() {
         // Test data
         Agreement agreement = new Agreement();
         agreement.setId(1L);
@@ -116,7 +116,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void getAccounts() {
+    void getAccounts() {
         // Test data
         Account account1 = new Account();
         Account account2 = new Account();
@@ -131,7 +131,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void getAccountsForAgreement() {
+    void getAccountsForAgreement() {
         // Test data
         Agreement agreement = new Agreement();
         agreement.setId(1L);
@@ -148,7 +148,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void charging() {
+    void charging() {
         // Test data
         Account account = new Account();
         BigDecimal amount = new BigDecimal(100);
