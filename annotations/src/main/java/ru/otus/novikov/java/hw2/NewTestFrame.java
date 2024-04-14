@@ -3,95 +3,81 @@ package ru.otus.novikov.java.hw2;
 import ru.otus.novikov.java.hw2.annotations.AfterSuite;
 import ru.otus.novikov.java.hw2.annotations.BeforeSuite;
 import ru.otus.novikov.java.hw2.annotations.Test;
+import ru.otus.novikov.java.hw2.exceptions.AnnotationConstraintException;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Stream;
 
 public class NewTestFrame {
 
-    public static void startTesting(String className) throws Exception {
+    public static void testingClass(String className) throws Exception {
         try {
             Class<?> clazz = Class.forName(className);
-            if(!checkMethodsAndAttributes(clazz)) {
-                return;
+            List<Method> preparedTestMethods = preparingTestMethods(clazz);
+            if (!preparedTestMethods.isEmpty()) {
+                testing(clazz, preparedTestMethods);
             }
-            testing(clazz);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private static boolean checkMethodsAndAttributes(Class<?> clazz) {
-        Method[] methods = clazz.getDeclaredMethods();
+    private static List<Method> preparingTestMethods(Class<?> clazz) {
+        Method[] declaredMethods = clazz.getDeclaredMethods();
 
-        List<Method> beforeSuiteMethods = Arrays.stream(methods).filter(it -> it.isAnnotationPresent(BeforeSuite.class)).toList();
+        List<Method> beforeSuiteMethods = Arrays.stream(declaredMethods)
+            .filter(it -> it.isAnnotationPresent(BeforeSuite.class)).toList();
+
+        // Check @BeforeSuite annotation
         if (beforeSuiteMethods.size() > 1) {
-            System.out.println("More one @BeforeSuite annotation in testing class");
-            return false;
+            throw new AnnotationConstraintException("More one @BeforeSuite annotation in testing class");
         }
 
-        List<Method> afterSuiteMethods = Arrays.stream(methods).filter(it -> it.isAnnotationPresent(AfterSuite.class)).toList();
-        if (afterSuiteMethods.size() > 1) {
-            System.out.println("More one @AfterSuite annotation in testing class");
-            return false;
-        }
-
-        List<Method> testMethods = Arrays.stream(methods)
-            .filter(it -> it.isAnnotationPresent(Test.class)).toList();
-
-        if (!testMethods.stream().filter(it ->
-                it.getAnnotation(Test.class).priority() > 10 ||
-                    it.getAnnotation(Test.class).priority() < 0)
-            .toList().isEmpty()) {
-            System.out.println("Impossible value for priority of tests");
-            return false;
-        }
-
-        return true;
-    }
-
-    private static void testing(Class<?> clazz) throws Exception {
-        int pass = 0;
-        int failed = 0;
-        Method[] methods = clazz.getDeclaredMethods();
-        Object newTest = clazz.getConstructor().newInstance();
-
-        Optional<Method> beforeSuiteMethod = Arrays.stream(methods)
-            .filter(it -> it.isAnnotationPresent(BeforeSuite.class))
-            .findAny();
-
-        Optional<Method> afterSuiteMethod = Arrays.stream(methods)
+        List<Method> afterSuiteMethods = Arrays.stream(declaredMethods)
             .filter(it -> it.isAnnotationPresent(AfterSuite.class))
-            .findAny();
+            .toList();
 
-        List<Method> testMethods = Arrays.stream(methods)
+        // Check @AfterSuite annotation
+        if (afterSuiteMethods.size() > 1) {
+            throw new AnnotationConstraintException("More one @AfterSuite annotation in testing class");
+        }
+
+        List<Method> testMethods = Arrays.stream(declaredMethods)
             .filter(it -> it.isAnnotationPresent(Test.class)).toList();
+
+        // Check @Test annotation
+        if (testMethods.stream().anyMatch(it ->
+            it.getAnnotation(Test.class).priority() > 10 ||
+                it.getAnnotation(Test.class).priority() < 0)
+        ) {
+            throw new AnnotationConstraintException("Impossible value for priority of tests");
+        }
 
         List<Method> sortedTestMethods = testMethods.stream()
             .sorted(Comparator.comparing(it -> it.getAnnotation(Test.class).priority(), Comparator.reverseOrder()))
             .toList();
 
-        if (beforeSuiteMethod.isPresent()) {
-            beforeSuiteMethod.get().invoke(newTest);
-        }
+        return Stream.of(beforeSuiteMethods, sortedTestMethods, afterSuiteMethods).flatMap(Collection::stream).toList();
+    }
 
-        for (Method m: sortedTestMethods) {
+    private static void testing(Class<?> clazz, List<Method> preparedTestMethods) {
+        int pass = 0;
+        int failed = 0;
+        TestClass newTest = new TestClass();
+
+        for (Method m : preparedTestMethods) {
             try {
                 m.invoke(newTest);
                 pass++;
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 failed++;
             }
         }
 
-        if (afterSuiteMethod.isPresent()) {
-            afterSuiteMethod.get().invoke(newTest);
-        }
-
-        System.out.printf("Testing completed. All tests: %d. Passed tests: %d. Failed tests: %d", testMethods.size(), pass, failed);
-
+        System.out.printf("Testing completed. All tests: %d. Passed tests: %d. Failed tests: %d", preparedTestMethods.size(), pass, failed);
     }
 }

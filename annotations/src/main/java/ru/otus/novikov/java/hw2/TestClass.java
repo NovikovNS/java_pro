@@ -6,8 +6,6 @@ import ru.otus.novikov.java.hw2.annotations.Test;
 
 public class TestClass {
 
-    public TestClass() {
-    }
 
     @BeforeSuite
     void beforeAll() {
