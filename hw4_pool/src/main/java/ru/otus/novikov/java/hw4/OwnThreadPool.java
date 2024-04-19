@@ -1,19 +1,17 @@
 package ru.otus.novikov.java.hw4;
 
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
 @AllArgsConstructor
 public class OwnThreadPool {
     private Queue<Runnable> tasks = new LinkedList<>();
     private AtomicBoolean running = new AtomicBoolean(true);
-    private ReentrantLock lock = new ReentrantLock(true);
     AtomicInteger ctr = new AtomicInteger();
 
     public OwnThreadPool(int capacity) {
@@ -24,39 +22,40 @@ public class OwnThreadPool {
 
     // Создание рабочего потока
     private class Worker extends Thread {
-        @SneakyThrows
         @Override
         public void run() {
             do {
-                lock.lock();
-                if (!tasks.isEmpty()) {
-                    tasks.poll().run();
+                Optional<Runnable> taskForExecution = getNext();
+                if(taskForExecution.isPresent()) {
                     System.out.println(ctr.incrementAndGet());
+                    try {
+                        taskForExecution.get().run();
+                    } catch (RuntimeException exception) {
+                        System.out.printf("There was exception during execution task: %s", exception.getMessage());
+                    }
                 }
-                lock.unlock();
-            } while (running.get());
+            } while (running.get() || !tasks.isEmpty());
         }
+    }
+
+    private synchronized Optional<Runnable> getNext() {
+        return Optional.ofNullable(tasks.poll());
     }
 
     /**
      * Передача задачи в пул
      */
-    @SneakyThrows
-    public void execute(Runnable task) {
-        lock.lock();
+    public synchronized void execute(Runnable task) {
         if (!running.get()) {
             throw new IllegalArgumentException("Pool was shutdown. Impossible to execute new tasks");
         }
         tasks.add(task);
-        lock.unlock();
     }
 
     /**
      * Завершение приёма задач в пул (с выбросом IllegalStateException при попытке добавить задачу в пул плосле вызова shutdown)
      */
     public void shutdown() {
-        this.running.set(false);
+        running.set(false);
     }
-
-
 }
