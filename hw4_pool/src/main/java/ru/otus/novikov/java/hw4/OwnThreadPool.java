@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @AllArgsConstructor
 public class OwnThreadPool {
-    private Queue<Runnable> tasks = new LinkedList<>();
+    private final Queue<Runnable> tasks = new LinkedList<>();
     private AtomicBoolean running = new AtomicBoolean(true);
     AtomicInteger ctr = new AtomicInteger();
 
@@ -33,6 +33,14 @@ public class OwnThreadPool {
                     } catch (RuntimeException exception) {
                         System.out.printf("There was exception during execution task: %s", exception.getMessage());
                     }
+                } else {
+                    synchronized (tasks) {
+                        try {
+                            tasks.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             } while (running.get() || !tasks.isEmpty());
         }
@@ -49,7 +57,11 @@ public class OwnThreadPool {
         if (!running.get()) {
             throw new IllegalArgumentException("Pool was shutdown. Impossible to execute new tasks");
         }
-        tasks.add(task);
+        synchronized (tasks) {
+            tasks.add(task);
+            tasks.notify();
+        }
+
     }
 
     /**
@@ -57,5 +69,8 @@ public class OwnThreadPool {
      */
     public void shutdown() {
         running.set(false);
+        synchronized (tasks) {
+            tasks.notifyAll();
+        }
     }
 }
