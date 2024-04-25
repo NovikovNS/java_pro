@@ -1,4 +1,5 @@
 rootProject.name = 'java_pro'
 include 'unittest'
+include 'annotations'
 include 'hw3_stream'
 
