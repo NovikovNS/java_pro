@@ -2,13 +2,12 @@ package ru.otus.novikov.java.hw5;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
-public class Box implements Iterable<String>{
+public final class Box implements Iterable<String>{
     private final List<String> firstList;
     private final List<String> secondList;
     private final List<String> thirdList;
@@ -16,30 +15,33 @@ public class Box implements Iterable<String>{
 
     @Override
     public Iterator iterator() {
-        List<String> commonList = Stream.of(firstList,secondList,thirdList,fourthList).flatMap(Collection::stream).toList();
-        return new BoxIterator(commonList);
+        return new BoxIterator();
     }
 
     class BoxIterator implements Iterator{
-        List<String> commonList;
-        int size;
-        int currentElement;
-
-        public BoxIterator(List<String> commonList) {
-            this.commonList = commonList;
-            this.size = commonList.size();
-            this.currentElement = 0;
-        }
+        private final Iterator<String> iterator1 = firstList.iterator();
+        private final Iterator<String> iterator2 = secondList.iterator();
+        private final Iterator<String> iterator3 = thirdList.iterator();
+        private final Iterator<String> iterator4 = fourthList.iterator();
 
         @Override
         public boolean hasNext() {
-            return currentElement != size;
+            return iterator1.hasNext() || iterator2.hasNext() || iterator3.hasNext() || iterator4.hasNext();
         }
 
         @Override
         public String next() {
-            currentElement++;
-            return commonList.get(currentElement - 1);
+            if (iterator1.hasNext()) {
+                return iterator1.next();
+            } else if (iterator2.hasNext()) {
+                return iterator2.next();
+            } else if (iterator3.hasNext()) {
+                return iterator3.next();
+            } else if (iterator4.hasNext()) {
+                return iterator4.next();
+            } else {
+                throw new NoSuchElementException();
+            }
         }
     }
 }

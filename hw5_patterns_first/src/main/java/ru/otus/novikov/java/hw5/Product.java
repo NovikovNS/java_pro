@@ -28,7 +28,7 @@ public class Product{
         return new ProductBuilder();
     }
 
-    public static class ProductBuilder {
+    protected static final class ProductBuilder {
         private Long id;
         private String title;
         private String description;
