@@ -18,7 +18,7 @@ public final class Box implements Iterable<String>{
         return new BoxIterator();
     }
 
-    class BoxIterator implements Iterator{
+    private class BoxIterator implements Iterator{
         private final Iterator<String> iterator1 = firstList.iterator();
         private final Iterator<String> iterator2 = secondList.iterator();
         private final Iterator<String> iterator3 = thirdList.iterator();

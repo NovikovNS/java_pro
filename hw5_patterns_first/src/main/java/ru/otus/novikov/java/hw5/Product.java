@@ -1,8 +1,9 @@
 package ru.otus.novikov.java.hw5;
 
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
-@Data
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Product{
     private final Long id;
     private final String title;
@@ -28,7 +29,8 @@ public class Product{
         return new ProductBuilder();
     }
 
-    protected static final class ProductBuilder {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    public static final class ProductBuilder {
         private Long id;
         private String title;
         private String description;
