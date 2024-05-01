@@ -1,5 +1,6 @@
 package ru.otus.novikov.java.hw5;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class MainApp {
@@ -16,7 +17,14 @@ public class MainApp {
             .build();
         System.out.println(newProduct);
 
-        Box box = new Box(List.of("first1", "first2"), List.of("second1", "second2"), List.of("third1", "third2"), List.of("fourth1", "fourth2"));
+        List<String> secondList = Arrays.asList("second1", "second2");
+
+        Box box = Box.builder()
+            .firstList(null)
+            .secondList(secondList)
+            .thirdList(List.of("third1", "third2"))
+            .fourthList(List.of("fourth1", "fourth2"))
+            .build();
 
         for (String str: box) {
             System.out.println(str);

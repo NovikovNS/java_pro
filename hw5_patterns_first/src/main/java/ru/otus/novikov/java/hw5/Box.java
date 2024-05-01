@@ -1,28 +1,47 @@
 package ru.otus.novikov.java.hw5;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-@RequiredArgsConstructor
-public final class Box implements Iterable<String>{
-    private final List<String> firstList;
-    private final List<String> secondList;
-    private final List<String> thirdList;
-    private final List<String> fourthList;
+public final class Box implements Iterable<String> {
+    private final List<String> firstList = new ArrayList<>();
+    private final List<String> secondList = new ArrayList<>();
+    private final List<String> thirdList = new ArrayList<>();
+    private final List<String> fourthList = new ArrayList<>();
 
-    @Override
-    public Iterator iterator() {
-        return new BoxIterator();
+    public Box(List<String> firstList, List<String> secondList, List<String> thirdList, List<String> fourthList) {
+        this.firstList.addAll(firstList == null ? List.of() : firstList);
+        this.secondList.addAll(secondList == null ? List.of() : secondList);
+        this.thirdList.addAll(thirdList == null ? List.of() : thirdList);
+        this.fourthList.addAll(fourthList == null ? List.of() : fourthList);
     }
 
-    private class BoxIterator implements Iterator{
-        private final Iterator<String> iterator1 = firstList.iterator();
-        private final Iterator<String> iterator2 = secondList.iterator();
-        private final Iterator<String> iterator3 = thirdList.iterator();
-        private final Iterator<String> iterator4 = fourthList.iterator();
+    @Override
+    public Iterator<String> iterator() {
+        return new BoxIterator(firstList, secondList, thirdList, fourthList);
+    }
+
+    public static BoxBuilder builder() {
+        return new BoxBuilder();
+    }
+
+    private static class BoxIterator implements Iterator<String> {
+        private final Iterator<String> iterator1;
+        private final Iterator<String> iterator2;
+        private final Iterator<String> iterator3;
+        private final Iterator<String> iterator4;
+
+        public BoxIterator(List<String> firstList, List<String> secondList, List<String> thirdList, List<String> fourthList) {
+            this.iterator1 = firstList.iterator();
+            this.iterator2 = secondList.iterator();
+            this.iterator3 = thirdList.iterator();
+            this.iterator4 = fourthList.iterator();
+        }
 
         @Override
         public boolean hasNext() {
@@ -42,6 +61,38 @@ public final class Box implements Iterable<String>{
             } else {
                 throw new NoSuchElementException();
             }
+        }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    public static final class BoxBuilder {
+        private List<String> firstList;
+        private List<String> secondList;
+        private List<String> thirdList;
+        private List<String> fourthList;
+
+        public BoxBuilder firstList(List<String> firstList) {
+            this.firstList = firstList;
+            return this;
+        }
+
+        public BoxBuilder secondList(List<String> secondList) {
+            this.secondList = secondList;
+            return this;
+        }
+
+        public BoxBuilder thirdList(List<String> thirdList) {
+            this.thirdList = thirdList;
+            return this;
+        }
+
+        public BoxBuilder fourthList(List<String> fourthList) {
+            this.fourthList = fourthList;
+            return this;
+        }
+
+        public Box build() {
+            return new Box(this.firstList, this.secondList, this.thirdList, this.fourthList);
         }
     }
 }

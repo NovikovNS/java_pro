@@ -2,8 +2,10 @@ package ru.otus.novikov.java.hw5;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString
 public class Product{
     private final Long id;
     private final String title;
