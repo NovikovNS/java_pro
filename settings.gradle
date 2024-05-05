@@ -3,4 +3,5 @@ include 'unittest'
 include 'annotations'
 include 'hw3_stream'
 include 'hw4_pool'
+include 'hw6_patterns_second'
 
