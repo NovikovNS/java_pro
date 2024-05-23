@@ -4,4 +4,4 @@ include 'annotations'
 include 'hw3_stream'
 include 'hw4_pool'
 include 'hw5_patterns_first'
-
+include 'hw6_patterns_second'
