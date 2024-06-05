@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 public class CalculatorRequestProcessor implements RequestProcessor {
     @Override
-    public void execute(HttpRequest httpRequest, OutputStream output) throws IOException {
+    public void execute(HttpRequest httpRequest, OutputStream output, Boolean isCached) throws IOException {
         int a = Integer.parseInt(httpRequest.getParameter("a"));
         int b = Integer.parseInt(httpRequest.getParameter("b"));
         int result = a + b;

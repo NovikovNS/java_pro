@@ -2,6 +2,7 @@ package ru.flamexander.http.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.flamexander.http.server.application.Cache;
 import ru.flamexander.http.server.application.processors.*;
 import ru.flamexander.http.server.processors.DefaultOptionsProcessor;
 import ru.flamexander.http.server.processors.DefaultStaticResourcesProcessor;
@@ -16,10 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Dispatcher {
-    private Map<String, RequestProcessor> router;
-    private RequestProcessor unknownOperationRequestProcessor;
-    private RequestProcessor optionsRequestProcessor;
-    private RequestProcessor staticResourcesProcessor;
+    private final Map<String, RequestProcessor> router;
+    private final RequestProcessor unknownOperationRequestProcessor;
+    private final RequestProcessor optionsRequestProcessor;
+    private final RequestProcessor staticResourcesProcessor;
 
     private static final Logger logger = LoggerFactory.getLogger(Dispatcher.class.getName());
 
@@ -39,17 +40,22 @@ public class Dispatcher {
 
     public void execute(HttpRequest httpRequest, OutputStream outputStream) throws IOException {
         if (httpRequest.getMethod() == HttpMethod.OPTIONS) {
-            optionsRequestProcessor.execute(httpRequest, outputStream);
+            optionsRequestProcessor.execute(httpRequest, outputStream, false);
             return;
         }
         if (Files.exists(Paths.get("static/", httpRequest.getUri().substring(1)))) {
-            staticResourcesProcessor.execute(httpRequest, outputStream);
+            String uri = httpRequest.getUri();
+            if (Cache.getCacheMap().containsKey(uri)) {
+                outputStream.write(Cache.getCacheMap().get(uri));
+                return;
+            }
+            staticResourcesProcessor.execute(httpRequest, outputStream, true);
             return;
         }
         if (!router.containsKey(httpRequest.getRouteKey())) {
-            unknownOperationRequestProcessor.execute(httpRequest, outputStream);
+            unknownOperationRequestProcessor.execute(httpRequest, outputStream, false);
             return;
         }
-        router.get(httpRequest.getRouteKey()).execute(httpRequest, outputStream);
+        router.get(httpRequest.getRouteKey()).execute(httpRequest, outputStream, false);
     }
 }

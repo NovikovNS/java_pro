@@ -15,6 +15,7 @@ dependencies {
     api("ch.qos.logback:logback-core:1.3.5")
     api("ch.qos.logback:logback-classic:1.3.5")
     api("org.slf4j:slf4j-api:2.0.4")
+    implementation("com.google.guava:guava:11.0.2")
 }
 
 group = "ru.flamexander.http.server"

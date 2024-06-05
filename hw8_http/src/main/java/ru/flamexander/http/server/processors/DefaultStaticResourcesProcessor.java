@@ -1,6 +1,8 @@
 package ru.flamexander.http.server.processors;
 
+import com.google.common.primitives.Bytes;
 import ru.flamexander.http.server.HttpRequest;
+import ru.flamexander.http.server.application.Cache;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,7 +12,7 @@ import java.nio.file.Paths;
 
 public class DefaultStaticResourcesProcessor implements RequestProcessor {
     @Override
-    public void execute(HttpRequest httpRequest, OutputStream output) throws IOException {
+    public void execute(HttpRequest httpRequest, OutputStream output, Boolean isCached) throws IOException {
         String filename = httpRequest.getUri().substring(1);
         Path filePath = Paths.get("static/", filename);
         String fileType = filename.substring(filename.lastIndexOf(".") + 1);
@@ -27,5 +29,9 @@ public class DefaultStaticResourcesProcessor implements RequestProcessor {
                 "\r\n";
         output.write(response.getBytes());
         output.write(fileData);
+
+        if (isCached) {
+            Cache.addCache(httpRequest.getUri(), Bytes.concat(response.getBytes(), fileData));
+        }
     }
 }

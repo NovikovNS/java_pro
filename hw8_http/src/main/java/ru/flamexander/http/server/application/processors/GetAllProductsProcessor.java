@@ -13,7 +13,7 @@ import java.util.List;
 
 public class GetAllProductsProcessor implements RequestProcessor {
     @Override
-    public void execute(HttpRequest httpRequest, OutputStream output) throws IOException {
+    public void execute(HttpRequest httpRequest, OutputStream output, Boolean isCached) throws IOException {
         List<Item> items = Storage.getItems();
         Gson gson = new Gson();
         String result = "HTTP/1.1 200 OK\r\n" +

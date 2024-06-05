@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 public class CreateNewProductProcessor implements RequestProcessor {
     @Override
-    public void execute(HttpRequest httpRequest, OutputStream output) throws IOException {
+    public void execute(HttpRequest httpRequest, OutputStream output, Boolean isCached) throws IOException {
         Gson gson = new Gson();
         Item item = gson.fromJson(httpRequest.getBody(), Item.class);
         Storage.save(item);

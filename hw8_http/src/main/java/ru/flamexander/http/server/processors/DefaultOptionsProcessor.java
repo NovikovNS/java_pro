@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DefaultOptionsProcessor implements RequestProcessor {
     @Override
-    public void execute(HttpRequest httpRequest, OutputStream output) throws IOException {
+    public void execute(HttpRequest httpRequest, OutputStream output, Boolean isCached) throws IOException {
         String response = "HTTP/1.1 204 No Content\r\n" +
                 "Connection: keep-alive\r\n" +
                 "Access-Control-Allow-Origin: *\r\n" +
