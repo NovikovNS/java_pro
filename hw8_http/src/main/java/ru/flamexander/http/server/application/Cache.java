@@ -1,7 +1,7 @@
 package ru.flamexander.http.server.application;
 
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Cache {
     public static Map<String, byte[]> getCacheMap() {
@@ -11,7 +11,7 @@ public class Cache {
     private static Map<String, byte[]> cacheMap;
 
     public static void init() {
-        cacheMap = new WeakHashMap<>();
+        cacheMap = new ConcurrentHashMap<>();
         System.out.println("Кеш проинициализирован");
     }
 

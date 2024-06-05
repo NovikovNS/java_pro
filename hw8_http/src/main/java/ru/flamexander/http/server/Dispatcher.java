@@ -7,6 +7,7 @@ import ru.flamexander.http.server.application.processors.*;
 import ru.flamexander.http.server.processors.DefaultOptionsProcessor;
 import ru.flamexander.http.server.processors.DefaultStaticResourcesProcessor;
 import ru.flamexander.http.server.processors.DefaultUnknownOperationProcessor;
+import ru.flamexander.http.server.processors.MethodNotAllowedProcessor;
 import ru.flamexander.http.server.processors.RequestProcessor;
 
 import java.io.IOException;
@@ -17,23 +18,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Dispatcher {
-    private final Map<String, RequestProcessor> router;
+    private final Map<Map<String, HttpMethod>, RequestProcessor> router;
     private final RequestProcessor unknownOperationRequestProcessor;
     private final RequestProcessor optionsRequestProcessor;
     private final RequestProcessor staticResourcesProcessor;
+    private final RequestProcessor methodNotAllowedProcessor;
 
     private static final Logger logger = LoggerFactory.getLogger(Dispatcher.class.getName());
 
     public Dispatcher() {
         this.router = new HashMap<>();
-        this.router.put("GET /calc", new CalculatorRequestProcessor());
-        this.router.put("GET /hello", new HelloWorldRequestProcessor());
-        this.router.put("GET /items", new GetAllProductsProcessor());
-        this.router.put("POST /items", new CreateNewProductProcessor());
+        this.router.put(Map.of("/calc", HttpMethod.GET), new CalculatorRequestProcessor());
+        this.router.put(Map.of("/hello", HttpMethod.GET), new HelloWorldRequestProcessor());
+        this.router.put(Map.of("/items", HttpMethod.GET), new GetAllProductsProcessor());
+        this.router.put(Map.of("/items", HttpMethod.POST), new CreateNewProductProcessor());
 
         this.unknownOperationRequestProcessor = new DefaultUnknownOperationProcessor();
         this.optionsRequestProcessor = new DefaultOptionsProcessor();
         this.staticResourcesProcessor = new DefaultStaticResourcesProcessor();
+        this.methodNotAllowedProcessor = new MethodNotAllowedProcessor();
 
         logger.info("Диспетчер проинициализирован");
     }
@@ -52,6 +55,12 @@ public class Dispatcher {
             staticResourcesProcessor.execute(httpRequest, outputStream, true);
             return;
         }
+
+        if(router.keySet().stream().anyMatch(map -> map.containsKey(httpRequest.getUri()) && !map.containsValue(httpRequest.getMethod()))) {
+            methodNotAllowedProcessor.execute(httpRequest, outputStream, true);
+            return;
+        }
+
         if (!router.containsKey(httpRequest.getRouteKey())) {
             unknownOperationRequestProcessor.execute(httpRequest, outputStream, false);
             return;

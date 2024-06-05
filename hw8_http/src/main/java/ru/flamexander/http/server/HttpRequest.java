@@ -17,8 +17,8 @@ public class HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class.getName());
 
-    public String getRouteKey() {
-        return String.format("%s %s", method, uri);
+    public Map<String, HttpMethod> getRouteKey() {
+        return Map.of(uri, method);
     }
 
     public String getUri() {
