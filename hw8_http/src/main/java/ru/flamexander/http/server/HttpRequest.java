@@ -13,6 +13,7 @@ public class HttpRequest {
     private String uri;
     private HttpMethod method;
     private Map<String, String> parameters;
+    private Map<String, String> headers;
     private String body;
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class.getName());
@@ -29,6 +30,10 @@ public class HttpRequest {
         return parameters.get(key);
     }
 
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
     public String getBody() {
         return body;
     }
@@ -41,6 +46,7 @@ public class HttpRequest {
         this.rawRequest = rawRequest;
         this.parseRequestLine();
         this.tryToParseBody();
+        this.parseHeaders();
 
         logger.info("\n{}", rawRequest);
         logger.info("{} {}\nParameters: {}\nBody: {}", method, uri, parameters, body); // TODO правильно все поназывать
@@ -63,6 +69,18 @@ public class HttpRequest {
                 }
                 this.body = stringBuilder.toString();
             }
+        }
+    }
+
+    public void parseHeaders() {
+        List<String> lines = rawRequest.lines().collect(Collectors.toList());
+        this.headers = new HashMap<>();
+        for (int i = 1; i < lines.size(); i++) {
+            if(lines.get(i).isEmpty()){
+                break;
+            }
+            String[] header = lines.get(i).split(":\\s",2);
+            headers.put(header[0], header[1]);
         }
     }
 
