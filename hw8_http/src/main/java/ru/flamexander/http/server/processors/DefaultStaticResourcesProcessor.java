@@ -9,14 +9,25 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
-public class DefaultStaticResourcesProcessor implements RequestProcessor {
+public class DefaultStaticResourcesProcessor extends AbstractProcessor {
+
+    public DefaultStaticResourcesProcessor() {
+        super(Collections.emptyList());
+    }
+
     @Override
-    public void execute(HttpRequest httpRequest, OutputStream output, Boolean isCached) throws IOException {
+    public void executeRequest(HttpRequest httpRequest, OutputStream output, Boolean isCached) {
         String filename = httpRequest.getUri().substring(1);
         Path filePath = Paths.get("static/", filename);
         String fileType = filename.substring(filename.lastIndexOf(".") + 1);
-        byte[] fileData = Files.readAllBytes(filePath);
+        byte[] fileData = new byte[0];
+        try {
+            fileData = Files.readAllBytes(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         String contentDisposition = "";
         if (fileType.equals("pdf")) {
@@ -24,11 +35,16 @@ public class DefaultStaticResourcesProcessor implements RequestProcessor {
         }
 
         String response = "HTTP/1.1 200 OK\r\n" +
-                "Content-Length: " + fileData.length + "\r\n" +
-                contentDisposition +
+            "Content-Length: " + fileData.length + "\r\n" +
+            addSessionIdForCookieIfNeed(httpRequest) + "\r\n" +
+            contentDisposition +
                 "\r\n";
-        output.write(response.getBytes());
-        output.write(fileData);
+        try {
+            output.write(response.getBytes());
+            output.write(fileData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         if (isCached) {
             Cache.addCache(httpRequest.getUri(), Bytes.concat(response.getBytes(), fileData));

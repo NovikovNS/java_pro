@@ -4,25 +4,38 @@ import com.google.gson.Gson;
 import ru.flamexander.http.server.HttpRequest;
 import ru.flamexander.http.server.application.Item;
 import ru.flamexander.http.server.application.Storage;
-import ru.flamexander.http.server.processors.RequestProcessor;
+import ru.flamexander.http.server.processors.AbstractProcessor;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-public class CreateNewProductProcessor implements RequestProcessor {
+public class CreateNewProductProcessor extends AbstractProcessor {
+
+    private static final String CONTENT_TYPE_VALUE = "application/json";
+
+    public CreateNewProductProcessor() {
+        super(List.of(CONTENT_TYPE_VALUE));
+    }
+
     @Override
-    public void execute(HttpRequest httpRequest, OutputStream output, Boolean isCached) throws IOException {
+    public void executeRequest(HttpRequest httpRequest, OutputStream output, Boolean isCached) {
         Gson gson = new Gson();
         Item item = gson.fromJson(httpRequest.getBody(), Item.class);
         Storage.save(item);
         String jsonOutItem = gson.toJson(item);
 
         String response = "HTTP/1.1 200 OK\r\n" +
-                "Content-Type: application/json\r\n" +
-                "Connection: keep-alive\r\n" +
-                "Access-Control-Allow-Origin: *\r\n" +
-                "\r\n" + jsonOutItem;
-        output.write(response.getBytes(StandardCharsets.UTF_8));
+            "Content-Type: " + CONTENT_TYPE_VALUE + "\r\n" +
+            "Connection: keep-alive\r\n" +
+            "Access-Control-Allow-Origin: *" + "\r\n" +
+            addSessionIdForCookieIfNeed(httpRequest) + "\r\n" +
+            "\r\n" + jsonOutItem;
+        try {
+            output.write(response.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
