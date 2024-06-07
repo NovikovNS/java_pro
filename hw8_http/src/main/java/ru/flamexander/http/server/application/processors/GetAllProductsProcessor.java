@@ -15,18 +15,19 @@ public class GetAllProductsProcessor extends AbstractProcessor {
     private static final String CONTENT_TYPE_VALUE = "application/json";
 
     public GetAllProductsProcessor() {
-        super(List.of(CONTENT_TYPE_VALUE));
+        super(CONTENT_TYPE_VALUE);
     }
 
     @Override
-    public void executeRequest(HttpRequest httpRequest, OutputStream output, Boolean isCached) {
+    public void executeRequest(HttpRequest httpRequest, OutputStream output) {
         List<Item> items = Storage.getItems();
         Gson gson = new Gson();
         String result = "HTTP/1.1 200 OK\r\n" +
             "Content-Type: application/json\r\n" +
             "Connection: keep-alive\r\n" +
             "Access-Control-Allow-Origin: *" + "\r\n" +
-            addSessionIdForCookieIfNeed(httpRequest) + "\r\n\r\n" +
+            "Cache-Control: public,max-age=300" +
+            addSessionIdForCookieIfNeed(httpRequest) + "\r\n" +
             gson.toJson(items);
         try {
             output.write(result.getBytes(StandardCharsets.UTF_8));

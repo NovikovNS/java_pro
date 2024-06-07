@@ -9,18 +9,17 @@ import ru.flamexander.http.server.processors.AbstractProcessor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 public class CreateNewProductProcessor extends AbstractProcessor {
 
     private static final String CONTENT_TYPE_VALUE = "application/json";
 
     public CreateNewProductProcessor() {
-        super(List.of(CONTENT_TYPE_VALUE));
+        super(CONTENT_TYPE_VALUE);
     }
 
     @Override
-    public void executeRequest(HttpRequest httpRequest, OutputStream output, Boolean isCached) {
+    public void executeRequest(HttpRequest httpRequest, OutputStream output) {
         Gson gson = new Gson();
         Item item = gson.fromJson(httpRequest.getBody(), Item.class);
         Storage.save(item);
@@ -29,7 +28,7 @@ public class CreateNewProductProcessor extends AbstractProcessor {
         String response = "HTTP/1.1 200 OK\r\n" +
             "Content-Type: " + CONTENT_TYPE_VALUE + "\r\n" +
             "Connection: keep-alive\r\n" +
-            "Access-Control-Allow-Origin: *" + "\r\n" +
+            "Access-Control-Allow-Origin: *" +
             addSessionIdForCookieIfNeed(httpRequest) + "\r\n" +
             "\r\n" + jsonOutItem;
         try {

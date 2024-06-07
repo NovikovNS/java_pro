@@ -2,8 +2,10 @@ package ru.flamexander.http.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.flamexander.http.server.application.Cache;
-import ru.flamexander.http.server.application.processors.*;
+import ru.flamexander.http.server.application.processors.CalculatorRequestProcessor;
+import ru.flamexander.http.server.application.processors.CreateNewProductProcessor;
+import ru.flamexander.http.server.application.processors.GetAllProductsProcessor;
+import ru.flamexander.http.server.application.processors.HelloWorldRequestProcessor;
 import ru.flamexander.http.server.processors.DefaultOptionsProcessor;
 import ru.flamexander.http.server.processors.DefaultStaticResourcesProcessor;
 import ru.flamexander.http.server.processors.DefaultUnknownOperationProcessor;
@@ -43,28 +45,24 @@ public class Dispatcher {
 
     public void execute(HttpRequest httpRequest, OutputStream outputStream) throws IOException {
         if (httpRequest.getMethod() == HttpMethod.OPTIONS) {
-            optionsRequestProcessor.execute(httpRequest, outputStream, false);
+            optionsRequestProcessor.execute(httpRequest, outputStream);
             return;
         }
         if (Files.exists(Paths.get("static/", httpRequest.getUri().substring(1)))) {
-            String uri = httpRequest.getUri();
-            if (Cache.getCacheMap().containsKey(uri)) {
-                outputStream.write(Cache.getCacheMap().get(uri));
-                return;
-            }
-            staticResourcesProcessor.execute(httpRequest, outputStream, true);
-            return;
-        }
-
-        if(router.keySet().stream().anyMatch(map -> map.containsKey(httpRequest.getUri()) && !map.containsValue(httpRequest.getMethod()))) {
-            methodNotAllowedProcessor.execute(httpRequest, outputStream, true);
+            staticResourcesProcessor.execute(httpRequest, outputStream);
             return;
         }
 
         if (!router.containsKey(httpRequest.getRouteKey())) {
-            unknownOperationRequestProcessor.execute(httpRequest, outputStream, false);
+            unknownOperationRequestProcessor.execute(httpRequest, outputStream);
             return;
         }
-        router.get(httpRequest.getRouteKey()).execute(httpRequest, outputStream, false);
+
+        if (router.keySet().stream().noneMatch(map -> map.containsKey(httpRequest.getUri()) && map.containsValue(httpRequest.getMethod()))) {
+            methodNotAllowedProcessor.execute(httpRequest, outputStream);
+            return;
+        }
+
+        router.get(httpRequest.getRouteKey()).execute(httpRequest, outputStream);
     }
 }

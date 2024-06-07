@@ -2,7 +2,6 @@ package ru.flamexander.http.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.flamexander.http.server.application.Cache;
 import ru.flamexander.http.server.application.Storage;
 
 import java.io.IOException;
@@ -32,7 +31,6 @@ public class HttpServer {
             logger.info("Сервер запущен на порту: {}", port);
             this.dispatcher = new Dispatcher();
             Storage.init();
-            Cache.init();
             while (true) {
                 Socket socket = serverSocket.accept();
                 executorService.execute(() -> executeRequest(socket));

@@ -5,22 +5,23 @@ import ru.flamexander.http.server.HttpRequest;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public abstract class AbstractProcessor implements RequestProcessor {
-    private List<String> acceptHeaderValues;
+    private String acceptHeaderValue;
 
     private static final String ACCEPT_HEADER = "Accept";
     private static final String COOKIE_HEADER = "Cookie";
     private static final String SESSION_ID_COOKIE_NAME = "SESSIONID";
     private static final String SET_COOKIE_HEADER = "Set-Cookie";
 
-    public AbstractProcessor(List<String> acceptHeaderValues) {
-        this.acceptHeaderValues = acceptHeaderValues;
+    public AbstractProcessor(String acceptHeaderValue) {
+        this.acceptHeaderValue = acceptHeaderValue;
     }
 
-    public void execute(HttpRequest httpRequest, OutputStream output, Boolean isCached) throws IOException {
+    public void execute(HttpRequest httpRequest, OutputStream output) throws IOException {
         if (isAcceptHeadersNotSuitable(httpRequest)) {
             String response = "HTTP/1.1 406 Not Acceptable\r\n" +
                 "Content-Type: text/html" +
@@ -28,15 +29,15 @@ public abstract class AbstractProcessor implements RequestProcessor {
             output.write(response.getBytes(StandardCharsets.UTF_8));
             return;
         }
-        executeRequest(httpRequest, output, isCached);
+        executeRequest(httpRequest, output);
     }
 
-    protected abstract void executeRequest(HttpRequest httpRequest, OutputStream output, Boolean isCached);
+    protected abstract void executeRequest(HttpRequest httpRequest, OutputStream output);
 
     protected String addSessionIdForCookieIfNeed(HttpRequest httpRequest) {
         if (!isSessionIdExist(httpRequest)) {
-            return SET_COOKIE_HEADER + ": " + SESSION_ID_COOKIE_NAME + " = " + UUID.randomUUID() + ";";
-        } else return "";
+            return "\r\n" + SET_COOKIE_HEADER + ": " + SESSION_ID_COOKIE_NAME + " = " + UUID.randomUUID() + ";\r\n";
+        } else return "\r\n";
     }
 
     private Boolean isSessionIdExist(HttpRequest httpRequest) {
@@ -45,7 +46,12 @@ public abstract class AbstractProcessor implements RequestProcessor {
     }
 
     private Boolean isAcceptHeadersNotSuitable(HttpRequest httpRequest) {
-        return !acceptHeaderValues.contains(httpRequest.getHeaders().get(ACCEPT_HEADER));
+        if (acceptHeaderValue.equals("")) {
+            return false;
+        }
+        List<String> requestAcceptHeaderValues = Arrays.asList(httpRequest.getHeaders().get(ACCEPT_HEADER)
+            .replaceAll("\\s", "").split(","));
+        return !requestAcceptHeaderValues.contains(acceptHeaderValue);
     }
 
 }
