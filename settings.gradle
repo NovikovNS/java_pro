@@ -6,4 +6,8 @@ include 'hw4_pool'
 include 'hw5_patterns_first'
 include 'hw6_patterns_second'
 include 'hw7_jdbc'
+include 'hw8_http'
+
+
+
 
