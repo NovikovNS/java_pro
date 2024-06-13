@@ -1,0 +1,21 @@
+plugins {
+    id 'war'
+    id 'java'
+}
+
+version 'novikovns'
+
+repositories {
+    mavenCentral()
+    mavenCentral()
+}
+
+dependencies {
+    implementation'org.slf4j:slf4j-api:1.7.25'
+    implementation'ch.qos.logback:logback-classic:1.1.7'
+    providedCompile 'javax.servlet:javax.servlet-api:4.0.1'
+}
+
+test {
+    useJUnitPlatform()
+}
