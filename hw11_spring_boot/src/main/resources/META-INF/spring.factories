@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  ru.otus.novikov.java.hw11.configuration.WebConfiguration,\
+  ru.otus.novikov.java.hw11.configuration.ServiceAutoConfiguration,\
+  ru.otus.novikov.java.hw11.configuration.RepositoryConfiguration, \
+  ru.otus.novikov.java.hw11.configuration.MapperConfiguration
