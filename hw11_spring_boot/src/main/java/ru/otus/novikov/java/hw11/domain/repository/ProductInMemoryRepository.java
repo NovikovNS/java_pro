@@ -1,5 +1,6 @@
 package ru.otus.novikov.java.hw11.domain.repository;
 
+import org.springframework.stereotype.Repository;
 import ru.otus.novikov.java.hw11.domain.entity.Product;
 import ru.otus.novikov.java.hw11.exceptions.EntityNotFoundException;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Repository
 public class ProductInMemoryRepository implements ProductRepository {
     private List<Product> products;
     private AtomicLong idCounter;

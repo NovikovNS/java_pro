@@ -1,6 +1,7 @@
 package ru.otus.novikov.java.hw11.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.otus.novikov.java.hw11.domain.entity.Product;
 import ru.otus.novikov.java.hw11.domain.repository.ProductRepository;
 import ru.otus.novikov.java.hw11.rest.dto.ProductDto;
@@ -9,6 +10,7 @@ import ru.otus.novikov.java.hw11.util.Mapper;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Service
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final Mapper<Product, ProductDto> mapper;
