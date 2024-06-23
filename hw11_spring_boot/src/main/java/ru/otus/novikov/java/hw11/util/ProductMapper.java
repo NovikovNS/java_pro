@@ -1,10 +1,10 @@
 package ru.otus.novikov.java.hw11.util;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.otus.novikov.java.hw11.domain.entity.Product;
 import ru.otus.novikov.java.hw11.rest.dto.ProductDto;
 
-@Service
+@Component
 public class ProductMapper implements Mapper<Product, ProductDto>{
     @Override
     public ProductDto mapToDto(Product entity) {
