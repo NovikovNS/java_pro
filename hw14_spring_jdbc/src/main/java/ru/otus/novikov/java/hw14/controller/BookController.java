@@ -1,6 +1,8 @@
 package ru.otus.novikov.java.hw14.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,8 +23,8 @@ public class BookController {
 
 
     @GetMapping
-    public List<BookDto> getBooks() {
-        return bookService.getAllBooks();
+    public ResponseEntity<List<BookDto>> getBooks() {
+        return ResponseEntity.ok(bookService.getAllBooks());
     }
 
     @GetMapping("/{bookId}")
@@ -31,13 +33,15 @@ public class BookController {
     }
 
     @PostMapping
-    public void createBook(@RequestBody BookDto book) {
+    public ResponseEntity<Void> createBook(@RequestBody BookDto book) {
         bookService.createBook(book);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{bookId}")
-    public void deleteBook(@PathVariable Long bookId) {
+    public ResponseEntity<Void> deleteBook(@PathVariable Long bookId) {
         bookService.deleteBook(bookId);
+        return ResponseEntity.noContent().build();
     }
 
 }

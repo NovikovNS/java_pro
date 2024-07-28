@@ -8,6 +8,7 @@ import ru.otus.novikov.java.hw14.dao.domain.Book;
 import ru.otus.novikov.java.hw14.exceptions.EntityNotFoundException;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -19,13 +20,17 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<BookDto> getAllBooks() {
         return StreamSupport.stream(bookRepository.findAll().spliterator(), false)
-            .map(book -> BookDto.builder()
-                .id(book.getId())
-                .name(book.getName())
-                .author(book.getAuthor())
-                .style(book.getStyle())
-                .build())
+            .map(convertToDto())
             .toList();
+    }
+
+    private Function<Book, BookDto> convertToDto() {
+        return book -> BookDto.builder()
+            .id(book.getId())
+            .name(book.getName())
+            .author(book.getAuthor())
+            .style(book.getStyle())
+            .build();
     }
 
     @Override
